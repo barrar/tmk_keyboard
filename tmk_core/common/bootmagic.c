@@ -24,7 +24,7 @@ void bootmagic(void)
     /* do scans in case of bounce */
     print("bootmagic scan: ... ");
     uint8_t scan = 100;
-    while (scan--) { matrix_scan(); wait_ms(10); }
+    while (scan--) { matrix_scan(); wait_ms(5); }
     print("done.\n");
 
     /* bootmagic skip */
