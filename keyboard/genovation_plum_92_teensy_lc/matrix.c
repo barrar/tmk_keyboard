@@ -93,7 +93,7 @@ uint8_t matrix_scan(void)
         if (--debouncing) {
             //wait_ms(1);
             //gptPolledDelay(&GPTD1, 1000);
-            chThdSleepMilliseconds(100);
+            chThdSleepMicroseconds(800);
         } else {
             for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
                 matrix[i] = matrix_debouncing[i];
