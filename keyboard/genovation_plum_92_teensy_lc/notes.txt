@@ -1,0 +1,5 @@
+GPT enabled
+37104 bytes, 58.4% usage
+
+no GPT
+36960 bytes, 58.2% usage
