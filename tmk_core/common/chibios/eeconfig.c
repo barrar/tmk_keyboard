@@ -371,7 +371,8 @@ void eeprom_write_byte(uint8_t *addr, uint8_t data)
 {
 	uint32_t offset = (uint32_t)addr;
 	const uint16_t *p, *end = (const uint16_t *)((uint32_t)flashend);
-	uint32_t i, val, flashaddr;
+	uint32_t i, flashaddr;
+	uint32_t val = 0;
 	uint16_t do_flash_cmd[] = {
 		0x2380, 0x7003, 0x7803, 0xb25b, 0x2b00, 0xdafb, 0x4770};
 	uint8_t buf[EEPROM_SIZE];

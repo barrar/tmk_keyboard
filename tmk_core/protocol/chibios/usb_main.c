@@ -825,6 +825,9 @@ static void usb_event_cb(USBDriver *usbp, usbevent_t event) {
 
   case USB_EVENT_STALLED:
     return;
+  case USB_EVENT_UNCONFIGURED:
+    return;
+
   }
 }
 
