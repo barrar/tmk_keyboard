@@ -20,10 +20,10 @@ static matrix_row_t read_cols(void);
 static void init_cols(void);
 static void unselect_rows(void);
 static void select_row(uint8_t row);
-static const GPTConfig gpt1cfg = {
-    1000000, /* 1MHz timer clock.*/
-    NULL
-};
+//static const GPTConfig gpt1cfg = {
+//    1000000, /* 1MHz timer clock for microseconds.*/
+ //   NULL
+//};
 
 
 inline
@@ -45,7 +45,7 @@ uint8_t matrix_cols(void)
 void matrix_init(void)
 {
     //start timer for delays
-    gptStart(&GPTD1, &gpt1cfg);
+    //gptStart(&GPTD1, &gpt1cfg);
     // initialize row and col
     unselect_rows();
     init_cols();
@@ -59,7 +59,8 @@ void matrix_init(void)
     //debug
     debug_matrix = true;
     LED_ON();
-    gptPolledDelay(&GPTD1, 500000);
+    chThdSleepMilliseconds(500);
+    //gptPolledDelay(&GPTD1, 500000);
     LED_OFF();
 }
 
@@ -71,7 +72,12 @@ uint8_t matrix_scan(void)
 		//for (uint8_t i=0; i < 1; i++) { // Loop for very short delay, wait_us is returning a 1ms delay
 		//	LED_TGL(); // toggle the onboard LED attached to pin 13
 		//}
-        gptPolledDelay(&GPTD1, 1);
+
+        //opt 2
+        //gptPolledDelay(&GPTD1, 1);
+
+        //opt 3
+        chThdSleepMicroseconds(1);
         matrix_row_t cols = read_cols();
         if (matrix_debouncing[i] != cols) {
             matrix_debouncing[i] = cols;
@@ -86,7 +92,8 @@ uint8_t matrix_scan(void)
     if (debouncing) {
         if (--debouncing) {
             //wait_ms(1);
-            gptPolledDelay(&GPTD1, 1000);
+            //gptPolledDelay(&GPTD1, 1000);
+            chThdSleepMilliseconds(100);
         } else {
             for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
                 matrix[i] = matrix_debouncing[i];

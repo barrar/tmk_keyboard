@@ -52,6 +52,6 @@
  * for Teensy 3.x */
 #define KINETIS_USB_USB0_IRQ_PRIORITY         2
 
-#define KINETIS_GPT_USE_PIT0                  TRUE
+//#define KINETIS_GPT_USE_PIT0                  TRUE
 
 #endif /* _MCUCONF_H_ */
