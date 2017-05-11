@@ -1,9 +1,5 @@
 #include "ch.h"
 #include "hal.h"
-
-/*
- * scan matrix
- */
 #include "print.h"
 #include "debug.h"
 #include "util.h"
