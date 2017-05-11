@@ -2,12 +2,12 @@
 
 const uint8_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* 0: qerty */
-    KEYMAP(ESC,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    X,    X, X, X, X, \
-           ESC,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    X,    X, X, X, X, \
-           ESC,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    X,    X, X, X, X, \
-           FN0,  A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN, QUOT, X, X, X, X, \
-           LSFT, Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH, FN20, X, X, X, X, \
-           LCTL, LGUI,LALT,     FN1,           FN2,      RALT,APP,  RCTL, X, X, X, X),
+    KEYMAP(ESC,  F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9,  F10,  F11,  F12, PSCR, F14,    F15, \
+           GRV,  1,   2,   3,   4,   5,   6,   7,   8,   9,   0,    MINS, EQL, BSPC, INS,    PGUP,  \
+           TAB,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    LBRC, RBRC,BSLS, DELETE, PGDN, \
+           CAPS, A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN, QUOT, ENT, HOME, X,      VOLU, \
+           LSFT, Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH, RSFT, UP,  END,  X,      VOLD, \
+           LCTL, LALT,LGUI,     SPC,           BSPC,      RALT,RCTL,  LEFT, DOWN,RGHT, X,     MUTE),
 
     /* 1: FN 1 */
     KEYMAP(ESC,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    X,    X, X, X, X, \
@@ -15,7 +15,7 @@ const uint8_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
            ESC,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    X,    X, X, X, X, \
            FN0,  A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN, QUOT, X, X, X, X, \
            LSFT, Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH, FN20, X, X, X, X, \
-           LCTL, LGUI,LALT,     FN1,           FN2,      RALT,APP,  RCTL, X, X, X, X),
+           LCTL, LGUI,LALT,     TRNS,           TRNS,      RALT,APP,  RCTL, X, X, X, X),
 
     /* 2: FN 2 */
     /*KEYMAP(GRV,     1,   2,   3,   4,   5,   6,   7,  8,   9,   0,  DEL, \
@@ -31,7 +31,5 @@ const uint8_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 const action_t PROGMEM fn_actions[] = {
-    [0]  = ACTION_LAYER_MOMENTARY(1),
+    ACTION_LAYER_TAP_KEY(2, KC_BSPC)
 };
-
-

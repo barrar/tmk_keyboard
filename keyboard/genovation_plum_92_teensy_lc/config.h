@@ -19,10 +19,10 @@
 #define MATRIX_COLS 15
 
 /* define if matrix has ghost */
-#define MATRIX_HAS_GHOST
+//#define MATRIX_HAS_GHOST
 
 /* Set 0 if debouncing isn't needed */
-#define DEBOUNCE    6
+#define DEBOUNCE    2
 
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
 //#define LOCKING_SUPPORT_ENABLE
@@ -42,7 +42,7 @@
  */
 
 /* disable debug print */
-//#define NO_DEBUG
+#define NO_DEBUG
 
 /* disable print */
 //#define NO_PRINT

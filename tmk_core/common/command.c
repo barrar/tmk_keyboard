@@ -365,7 +365,8 @@ static bool command_common(uint8_t code)
             }
             break;
 #endif
-        case KC_ESC:
+        case KC_B:
+            __asm__ volatile("bkpt");
         case KC_GRV:
         case KC_0:
         case KC_F10:

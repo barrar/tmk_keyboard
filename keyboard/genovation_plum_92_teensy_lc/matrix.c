@@ -24,6 +24,8 @@ static void select_row(uint8_t row);
 //    1000000, /* 1MHz timer clock for microseconds.*/
  //   NULL
 //};
+static uint16_t matrix_timer = 0;
+static uint16_t last_time = 0;
 
 
 inline
@@ -38,9 +40,9 @@ uint8_t matrix_cols(void)
     return MATRIX_COLS;
 }
 
-#define LED_ON()    do { palSetPad(TEENSY_PIN13_IOPORT, TEENSY_PIN13) ;} while (0)
-#define LED_OFF()   do { palClearPad(TEENSY_PIN13_IOPORT, TEENSY_PIN13); } while (0)
-#define LED_TGL()   do { palTogglePad(TEENSY_PIN13_IOPORT, TEENSY_PIN13); } while (0)
+#define LED_ON()    do { palSetPadMode(TEENSY_PIN17_IOPORT, TEENSY_PIN17, PAL_MODE_OUTPUT_PUSHPULL); palSetPad(TEENSY_PIN17_IOPORT, TEENSY_PIN17) ;} while (0)
+#define LED_OFF()   do { palClearPad(TEENSY_PIN17_IOPORT, TEENSY_PIN17);} while (0)
+#define LED_TGL()   do { palTogglePad(TEENSY_PIN17_IOPORT, TEENSY_PIN17); } while (0)
 
 void matrix_init(void)
 {
@@ -58,14 +60,18 @@ void matrix_init(void)
 
     //debug
     debug_matrix = true;
-    LED_ON();
-    chThdSleepMilliseconds(500);
-    //gptPolledDelay(&GPTD1, 500000);
-    LED_OFF();
+    last_time = timer_read();
 }
 
 uint8_t matrix_scan(void)
 {
+    if (matrix_timer > 1000){
+        print_decs (1000/timer_elapsed(last_time));
+        print("\n");
+        last_time = timer_read();
+    }else{
+        matrix_timer++;
+    }
     for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
         select_row(i);
         //wait_us(30);  // without this wait read unstable value.
@@ -80,10 +86,8 @@ uint8_t matrix_scan(void)
         chThdSleepMicroseconds(1);
         matrix_row_t cols = read_cols();
         if (matrix_debouncing[i] != cols) {
+            LED_ON();
             matrix_debouncing[i] = cols;
-            if (debouncing) {
-                debug("bounce!: "); debug_hex(debouncing); debug("\n");
-            }
             debouncing = DEBOUNCE;
         }
         unselect_rows();
@@ -91,13 +95,13 @@ uint8_t matrix_scan(void)
 
     if (debouncing) {
         if (--debouncing) {
-            //wait_ms(1);
-            //gptPolledDelay(&GPTD1, 1000);
             chThdSleepMicroseconds(800);
         } else {
             for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
                 matrix[i] = matrix_debouncing[i];
+                LED_OFF();
             }
+            matrix_print();
         }
     }
 
@@ -118,12 +122,18 @@ matrix_row_t matrix_get_row(uint8_t row)
 
 void matrix_print(void)
 {
-    print("\nr/c 0123456789ABCDE\n");
     for (uint8_t row = 0; row < MATRIX_ROWS; row++) {
-        phex(row); print(": ");
-        pbin_reverse16(matrix_get_row(row));
-        print("\n");
+        matrix_row_t data = matrix_get_row(row);
+        for (int col = 0; col < MATRIX_COLS; col++) {
+            if (data & (1<<col)){
+                print("K");
+                print_hex4(row);
+                print_hex4(col);
+                print(", ");
+            }
+        }
     }
+    print("\n");
 }
 
 /* Column pin configuration
@@ -146,8 +156,6 @@ static void  init_cols(void)
     palSetPadMode(TEENSY_PIN22_IOPORT, TEENSY_PIN22, PAL_MODE_INPUT_PULLUP);
     palSetPadMode(TEENSY_PIN23_IOPORT, TEENSY_PIN23, PAL_MODE_INPUT_PULLUP);
     palSetPadMode(TEENSY_PIN24_IOPORT, TEENSY_PIN24, PAL_MODE_INPUT_PULLUP);
-    palSetPadMode(TEENSY_PIN25_IOPORT, TEENSY_PIN25, PAL_MODE_INPUT_PULLUP);
-
 }
 
 /* Returns status of switches(1:on, 0:off) */
@@ -167,8 +175,7 @@ static matrix_row_t read_cols(void)
          | ((palReadPad(TEENSY_PIN21_IOPORT, TEENSY_PIN21)==PAL_HIGH) ? 0 : (1<<11))
          | ((palReadPad(TEENSY_PIN22_IOPORT, TEENSY_PIN22)==PAL_HIGH) ? 0 : (1<<12))
          | ((palReadPad(TEENSY_PIN23_IOPORT, TEENSY_PIN23)==PAL_HIGH) ? 0 : (1<<13))
-         | ((palReadPad(TEENSY_PIN24_IOPORT, TEENSY_PIN24)==PAL_HIGH) ? 0 : (1<<14))
-         | ((palReadPad(TEENSY_PIN25_IOPORT, TEENSY_PIN25)==PAL_HIGH) ? 0 : (1<<15));
+         | ((palReadPad(TEENSY_PIN24_IOPORT, TEENSY_PIN24)==PAL_HIGH) ? 0 : (1<<14));
 }
 
 /* Row pin configuration
