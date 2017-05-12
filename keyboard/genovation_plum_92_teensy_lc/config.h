@@ -22,7 +22,7 @@
 //#define MATRIX_HAS_GHOST
 
 /* Set 0 if debouncing isn't needed */
-#define DEBOUNCE    4
+#define DEBOUNCE    15
 
 /* Mechanical locking support. Use KC_LCAP, KC_LNUM or KC_LSCR instead in keymap */
 //#define LOCKING_SUPPORT_ENABLE
@@ -34,7 +34,7 @@
     keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
 )
 
-
+//#define PRINT_SCAN_PER_SECOND
 
 /*
  * Feature disable options
