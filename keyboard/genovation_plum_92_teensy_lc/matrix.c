@@ -73,9 +73,7 @@ uint8_t matrix_scan(void)
     }
 
     if (debouncing) {
-        if (--debouncing) {
-            chThdSleepMicroseconds(100);
-        } else {
+        if (!(--debouncing)) {
             for (uint8_t i = 0; i < MATRIX_ROWS; i++) {
                 matrix[i] = matrix_debouncing[i];
             }
