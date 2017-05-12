@@ -28,19 +28,71 @@
 #include "adb.h"
 #endif
 
-
 #ifdef MATRIX_HAS_GHOST
+/*
+static void printbin(uint16_t data)
+{
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        if (data & (1<<col))
+            print("1");
+        else
+            print("0");
+    }
+}
+*/
+static bool countones(uint16_t data)
+{
+    int count = 0;
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        if (data & (1<<col))
+            count++;
+    }
+    if (count > 1){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+// bit map of true keys and empty spots in matrix, each row is reversed
+static matrix_row_t matrix_ghost_check[MATRIX_ROWS] = {
+    (matrix_row_t) 0b001101111110111,
+    (matrix_row_t) 0b101111111101110,
+    (matrix_row_t) 0b010010111111111,
+    (matrix_row_t) 0b111111001111001,
+    (matrix_row_t) 0b111011101111111,
+    (matrix_row_t) 0b111111111111001,
+    (matrix_row_t) 0b110110110110111,
+    (matrix_row_t) 0b111101010011110
+};
 static bool has_ghost_in_row(uint8_t row)
 {
-    matrix_row_t matrix_row = matrix_get_row(row);
+    matrix_row_t matrix_row = (matrix_get_row(row));
     // No ghost exists when less than 2 keys are down on the row
-    if (((matrix_row - 1) & matrix_row) == 0)
+    if (((matrix_row - 1) & matrix_row) == 0){
         return false;
+
+    }
 
     // Ghost occurs when the row shares column line with other row
     for (uint8_t i=0; i < MATRIX_ROWS; i++) {
-        if (i != row && (matrix_get_row(i) & matrix_row))
+        if (i != row && countones((matrix_get_row(i) & matrix_ghost_check[i]) & (matrix_row & matrix_ghost_check[row]))){
+          /*
+            print("\nmatrix_ghost_check: ");
+            printbin(matrix_ghost_check[i]);
+            chThdSleepMilliseconds(50);
+            print("\nmatrix_get_row:     ");
+            printbin(matrix_get_row(i));
+            chThdSleepMilliseconds(50);
+            print("\nmatrix_row:         ");
+            printbin(matrix_row);
+            chThdSleepMilliseconds(50);
+            print("\nmore than one 1:    ");
+            printbin((matrix_get_row(i) & matrix_ghost_check[i]) & (matrix_row & matrix_ghost_check[row]));
+            chThdSleepMilliseconds(50);
+            */
             return true;
+        }
     }
     return false;
 }
@@ -83,9 +135,6 @@ void keyboard_init(void)
 void keyboard_task(void)
 {
     static matrix_row_t matrix_prev[MATRIX_ROWS];
-#ifdef MATRIX_HAS_GHOST
-    static matrix_row_t matrix_ghost[MATRIX_ROWS];
-#endif
     static uint8_t led_status = 0;
     matrix_row_t matrix_row = 0;
     matrix_row_t matrix_change = 0;
@@ -97,19 +146,9 @@ void keyboard_task(void)
         if (matrix_change) {
 #ifdef MATRIX_HAS_GHOST
             if (has_ghost_in_row(r)) {
-                /* Keep track of whether ghosted status has changed for
-                 * debugging. But don't update matrix_prev until un-ghosted, or
-                 * the last key would be lost.
-                 */
-                if (debug_matrix && matrix_ghost[r] != matrix_row) {
-                    matrix_print();
-                }
-                matrix_ghost[r] = matrix_row;
                 continue;
             }
-            matrix_ghost[r] = matrix_row;
 #endif
-            if (debug_matrix) matrix_print();
             for (uint8_t c = 0; c < MATRIX_COLS; c++) {
                 if (matrix_change & ((matrix_row_t)1<<c)) {
                     keyevent_t e = (keyevent_t){

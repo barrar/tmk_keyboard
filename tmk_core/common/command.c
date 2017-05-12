@@ -368,7 +368,7 @@ static bool command_common(uint8_t code)
             break;
 #endif
         case KC_B:
-            for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
+           /* for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
                 for (uint8_t c = 0; c < MATRIX_COLS; c++) {
                         keyevent_t e = (keyevent_t){
                             .key = (keypos_t){ .row = r, .col = c },
@@ -377,7 +377,7 @@ static bool command_common(uint8_t code)
                         };
                         action_exec(e);
                 }
-            }
+            */
             chThdSleepMilliseconds(100);
             __asm__ volatile("bkpt");
         case KC_GRV:
