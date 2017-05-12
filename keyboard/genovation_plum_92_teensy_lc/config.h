@@ -34,6 +34,7 @@
     keyboard_report->mods == (MOD_BIT(KC_LSHIFT) | MOD_BIT(KC_RSHIFT)) \
 )
 
+//This needs print enabled as well
 //#define PRINT_SCAN_PER_SECOND
 
 /*

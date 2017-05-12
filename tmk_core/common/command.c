@@ -149,6 +149,7 @@ static void print_eeconfig(void)
     print("default_layer: "); print_dec(eeconfig_read_default_layer()); print("\n");
 
     debug_config_t dc;
+    (void)dc;
     dc.raw = eeconfig_read_debug();
     print("debug_config.raw: "); print_hex8(dc.raw); print("\n");
     print(".enable: "); print_dec(dc.enable); print("\n");
@@ -157,6 +158,7 @@ static void print_eeconfig(void)
     print(".mouse: "); print_dec(dc.mouse); print("\n");
 
     keymap_config_t kc;
+    (void)kc;
     kc.raw = eeconfig_read_keymap();
     print("keymap_config.raw: "); print_hex8(kc.raw); print("\n");
     print(".swap_control_capslock: "); print_dec(kc.swap_control_capslock); print("\n");
@@ -366,6 +368,17 @@ static bool command_common(uint8_t code)
             break;
 #endif
         case KC_B:
+            for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
+                for (uint8_t c = 0; c < MATRIX_COLS; c++) {
+                        keyevent_t e = (keyevent_t){
+                            .key = (keypos_t){ .row = r, .col = c },
+                            .pressed = 0,
+                            .time = 1
+                        };
+                        action_exec(e);
+                }
+            }
+            chThdSleepMilliseconds(100);
             __asm__ volatile("bkpt");
         case KC_GRV:
         case KC_0:
