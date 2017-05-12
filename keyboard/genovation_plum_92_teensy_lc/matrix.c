@@ -29,12 +29,9 @@ uint8_t matrix_cols(void)
     return MATRIX_COLS;
 }
 
-#define LED_ON()    do { palSetPadMode(TEENSY_PIN17_IOPORT, TEENSY_PIN17, PAL_MODE_OUTPUT_PUSHPULL); palSetPad(TEENSY_PIN17_IOPORT, TEENSY_PIN17) ;} while (0)
-#define LED_OFF()   do { palClearPad(TEENSY_PIN17_IOPORT, TEENSY_PIN17);} while (0)
-#define LED_TGL()   do { palTogglePad(TEENSY_PIN17_IOPORT, TEENSY_PIN17); } while (0)
-
 void matrix_init(void)
 {
+    palSetPadMode(TEENSY_PIN17_IOPORT, TEENSY_PIN17, PAL_MODE_OUTPUT_PUSHPULL);
     // initialize row and col
     unselect_rows();
     init_cols();
