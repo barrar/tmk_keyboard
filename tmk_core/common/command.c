@@ -222,6 +222,7 @@ static bool command_common(uint8_t code)
             break;
 #endif
         case KC_H:
+            __asm__ volatile("bkpt");
         case KC_SLASH: /* ? */
             command_common_help();
             break;
@@ -368,16 +369,16 @@ static bool command_common(uint8_t code)
             break;
 #endif
         case KC_B:
-           /* for (uint8_t r = 0; r < MATRIX_ROWS; r++) {
-                for (uint8_t c = 0; c < MATRIX_COLS; c++) {
-                        keyevent_t e = (keyevent_t){
-                            .key = (keypos_t){ .row = r, .col = c },
-                            .pressed = 0,
-                            .time = 1
-                        };
-                        action_exec(e);
-                }
-            */
+        //unset shift keys, otherwise OS keeps them on
+        //even after reboot, and then you have to press
+        //them both to reset them. By the way, "bkpt" goes
+        //to the bootloader.
+            chThdSleepMilliseconds(50);
+            unregister_code(KC_LSFT);
+            chThdSleepMilliseconds(50);
+            unregister_code(KC_RSFT);
+            chThdSleepMilliseconds(50);
+            unregister_code(KC_B);
             chThdSleepMilliseconds(100);
             __asm__ volatile("bkpt");
         case KC_GRV:
@@ -416,6 +417,7 @@ static bool command_console(uint8_t code)
 {
     switch (code) {
         case KC_H:
+
         case KC_SLASH: /* ? */
             command_console_help();
             break;
@@ -581,6 +583,7 @@ static bool mousekey_console(uint8_t code)
 {
     switch (code) {
         case KC_H:
+            
         case KC_SLASH: /* ? */
             mousekey_console_help();
             break;
