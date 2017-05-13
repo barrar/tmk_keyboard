@@ -29,73 +29,41 @@
 #endif
 
 #ifdef MATRIX_HAS_GHOST
-/*
-static void printbin(uint16_t data)
-{
-    for (int col = 0; col < MATRIX_COLS; col++) {
-        if (data & (1<<col))
-            print("1");
-        else
-            print("0");
-    }
-}
-*/
-static bool countones(uint16_t data)
-{
-    int count = 0;
-    for (int col = 0; col < MATRIX_COLS; col++) {
-        if (data & (1<<col))
-            count++;
-    }
-    if (count > 1){
-        return true;
-    }else{
-        return false;
-    }
-}
-
-// bit map of true keys and empty spots in matrix, each row is reversed
-static matrix_row_t matrix_ghost_check[MATRIX_ROWS] = {
-    (matrix_row_t) 0b001101111110111,
-    (matrix_row_t) 0b101111111101110,
-    (matrix_row_t) 0b010010111111111,
-    (matrix_row_t) 0b111111001111001,
-    (matrix_row_t) 0b111011101111111,
-    (matrix_row_t) 0b111111111111001,
-    (matrix_row_t) 0b110110110110111,
-    (matrix_row_t) 0b111101010011110
-};
+static uint16_t matrix_ghost_check[MATRIX_ROWS];
 static bool has_ghost_in_row(uint8_t row)
 {
-    matrix_row_t matrix_row = (matrix_get_row(row));
-    // No ghost exists when less than 2 keys are down on the row
+    matrix_row_t matrix_row = (matrix_get_row(row) & matrix_ghost_check[row]);
+    /* No ghost exists when less than 2 keys are down on the row.
+    If there are "active" blanks in the matrix, the key can't be pressed by the user,
+    there is no doubt as to which keys are really being pressed.
+    The ghosts will be ignored, they are KC_NO.   */
     if (((matrix_row - 1) & matrix_row) == 0){
         return false;
-
     }
-
-    // Ghost occurs when the row shares column line with other row
+    // Ghost occurs when the row shares column line with other row, blanks in the matrix don't matter
+    // If there are more than two real keys pressed and they match another row's real keys, the row will be ignored.
     for (uint8_t i=0; i < MATRIX_ROWS; i++) {
-        if (i != row && countones((matrix_get_row(i) & matrix_ghost_check[i]) & (matrix_row & matrix_ghost_check[row]))){
-          /*
-            print("\nmatrix_ghost_check: ");
-            printbin(matrix_ghost_check[i]);
-            chThdSleepMilliseconds(50);
-            print("\nmatrix_get_row:     ");
-            printbin(matrix_get_row(i));
-            chThdSleepMilliseconds(50);
-            print("\nmatrix_row:         ");
-            printbin(matrix_row);
-            chThdSleepMilliseconds(50);
-            print("\nmore than one 1:    ");
-            printbin((matrix_get_row(i) & matrix_ghost_check[i]) & (matrix_row & matrix_ghost_check[row]));
-            chThdSleepMilliseconds(50);
-            */
+        if (i != row && __builtin_popcount((matrix_get_row(i) & matrix_ghost_check[i]) & matrix_row) > 1){
             return true;
         }
     }
     return false;
+    return false;
 }
+
+extern const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS];
+// bit map of true keys and empty spots in matrix, each row is reversed
+void make_ghost_check_array(){
+    for (int row = 0; row < MATRIX_ROWS; row++) {
+        for (int col = 0; col < MATRIX_COLS; col++) {
+            if (keymaps[0][row][col] & 0xFF)
+                matrix_ghost_check[row] |= 1<<col;
+            else
+                matrix_ghost_check[row] |= 0<<col;
+        }
+    }
+}
+
 #endif
 
 
@@ -117,14 +85,14 @@ void keyboard_init(void)
 #ifdef ADB_MOUSE_ENABLE
     adb_mouse_init();
 #endif
-
-
 #ifdef BOOTMAGIC_ENABLE
     bootmagic();
 #endif
-
 #ifdef BACKLIGHT_ENABLE
     backlight_init();
+#endif
+#ifdef MATRIX_HAS_GHOST
+    make_ghost_check_array();
 #endif
 }
 
