@@ -28,40 +28,50 @@
 #include "adb.h"
 #endif
 
+
 #ifdef MATRIX_HAS_GHOST
-static uint16_t matrix_ghost_check[MATRIX_ROWS];
-static bool has_ghost_in_row(uint8_t row)
+extern const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS];
+static matrix_row_t get_real_keys(uint8_t row, matrix_row_t rowdata){
+    matrix_row_t out = 0;
+    for (int col = 0; col < MATRIX_COLS; col++) {
+        if (pgm_read_byte(&keymaps[0][row][col]) && ((rowdata & (1<<col)))){
+            out |= 1<<col;
+        }
+    }
+    return out;
+}
+
+static inline bool countones(matrix_row_t row)
 {
-    matrix_row_t matrix_row = (matrix_get_row(row) & matrix_ghost_check[row]);
+    int count = 0;
+    while (row > 0){
+        count += 1;
+        row &= row-1;
+    }
+    if (count > 1){
+        return true;
+    }
+    return false;
+}
+
+static inline bool has_ghost_in_row(uint8_t row, matrix_row_t rowdata)
+{
+    rowdata = get_real_keys(row, rowdata);
+    if (((rowdata - 1) & rowdata) == 0){
+        return false;
+    }
     /* No ghost exists when less than 2 keys are down on the row.
     If there are "active" blanks in the matrix, the key can't be pressed by the user,
     there is no doubt as to which keys are really being pressed.
     The ghosts will be ignored, they are KC_NO.   */
-    if (((matrix_row - 1) & matrix_row) == 0){
-        return false;
-    }
     // Ghost occurs when the row shares column line with other row, blanks in the matrix don't matter
     // If there are more than two real keys pressed and they match another row's real keys, the row will be ignored.
     for (uint8_t i=0; i < MATRIX_ROWS; i++) {
-        if (i != row && __builtin_popcount((matrix_get_row(i) & matrix_ghost_check[i]) & matrix_row) > 1){
+        if (i != row && countones(get_real_keys(i, matrix_get_row(i)) & rowdata)){
             return true;
         }
     }
     return false;
-    return false;
-}
-
-extern const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS];
-// bit map of true keys and empty spots in matrix, each row is reversed
-void make_ghost_check_array(){
-    for (int row = 0; row < MATRIX_ROWS; row++) {
-        for (int col = 0; col < MATRIX_COLS; col++) {
-            if (keymaps[0][row][col] & 0xFF)
-                matrix_ghost_check[row] |= 1<<col;
-            else
-                matrix_ghost_check[row] |= 0<<col;
-        }
-    }
 }
 
 #endif
@@ -91,9 +101,6 @@ void keyboard_init(void)
 #ifdef BACKLIGHT_ENABLE
     backlight_init();
 #endif
-#ifdef MATRIX_HAS_GHOST
-    make_ghost_check_array();
-#endif
 }
 
 /*
@@ -113,7 +120,7 @@ void keyboard_task(void)
         matrix_change = matrix_row ^ matrix_prev[r];
         if (matrix_change) {
 #ifdef MATRIX_HAS_GHOST
-            if (has_ghost_in_row(r)) {
+            if (has_ghost_in_row(r, matrix_row)) {
                 continue;
             }
 #endif

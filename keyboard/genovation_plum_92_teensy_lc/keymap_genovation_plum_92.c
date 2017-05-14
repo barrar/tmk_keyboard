@@ -5,9 +5,9 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KEYMAP(ESC,  F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9,  F10,  F11,  F12, PSCR, F14,    F15, \
            GRV,  1,   2,   3,   4,   5,   6,   7,   8,   9,   0,    MINS, EQL, BSPC, INS,    PGUP,  \
            TAB,  Q,   W,   E,   R,   T,   Y,   U,   I,   O,   P,    LBRC, RBRC,BSLS, DELETE, PGDN, \
-           CAPS, A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN, QUOT, ENT, HOME, X,      VOLU, \
+           BSPC, A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN, QUOT, ENT, HOME, X,      VOLU, \
            LSFT, Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH, RSFT, UP,  END,  X,      VOLD, \
-           LCTL, LALT,LGUI,     SPC,           BSPC,     FN2, RCTL, LEFT, DOWN,RGHT, FN0,     MUTE),
+           LCTL, LALT,LGUI,     SPC,           ENT,     FN2, RCTL, LEFT, DOWN,RGHT, FN0,     MUTE),
 
     /* 1: FN 1 */
     KEYMAP(ESC,  F1,  F2,  F3,  F4,  F5,  F6,  F7,  F8,  F9,  F10,  F11,  F12, PSCR, F14,    SLEP, \
@@ -15,7 +15,7 @@ const uint8_t keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
            TAB,  FN1, W,   E,   R,   T,   Y,   U,   I,   O,   P,    LBRC, RBRC,BSLS, DELETE, PGDN, \
            CAPS, A,   S,   D,   F,   G,   H,   J,   K,   L,   SCLN, QUOT, ENT, HOME, X,      VOLU, \
            LSFT, Z,   X,   C,   V,   B,   N,   M,   COMM,DOT, SLSH, RSFT, UP,  END,  X,      VOLD, \
-           LCTL, LALT,LGUI,     SPC,           BSPC,     FN2, RCTL, LEFT, DOWN,RGHT, FN0,     MUTE),
+           LCTL, LALT,LGUI,     SPC,           ENT,     FN2, RCTL, LEFT, DOWN,RGHT, FN0,     MUTE),
 };
 
 enum macro_id {
@@ -37,7 +37,7 @@ const macro_t *action_get_macro(keyrecord_t *record, uint8_t id, uint8_t opt)
     switch (id) {
         case TRACK55:
             return (record->event.pressed ?
-                    MACRO( I(10), T(5), T(5), END ) :
+                    MACRO( I(1), T(5), T(5), END ) :
                     MACRO_NONE );
         case VOLUP:
             return (record->event.pressed ?
